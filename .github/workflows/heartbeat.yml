@@ -2,16 +2,19 @@ name: SENTRY-13 Heartbeat Robot
 
 on:
   schedule:
-    # This CRON expression runs the robot every single day at 00:00 UTC
+    # Runs every day at 00:00 UTC
     - cron: '0 0 * * *'
-  workflow_dispatch: # This allows you to manually click a button to test it anytime
+  workflow_dispatch: # Lets you run it manually from the Actions tab
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Wake Up Project Endpoint
+      - name: Wake up project endpoint
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          curl -i -X GET "https://dkhruuycsvmjhtvjpnrl.supabase.co/rest/v1/" \
-          -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl -sS -o /dev/null -w "HTTP status: %{http_code}\n" \
+            "$SUPABASE_URL/rest/v1/" \
+            -H "apikey: $SUPABASE_ANON_KEY"
